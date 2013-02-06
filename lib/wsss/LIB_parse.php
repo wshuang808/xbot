@@ -5,7 +5,7 @@ Copyright 2007, Michael Schrenk
    This software is designed for use with the book,                                                             
    "Webbots, Spiders, and Screen Scarpers", Michael Schrenk, 2007 No Starch Press, San Francisco CA             
                                                                                                                 
-W3C® SOFTWARE NOTICE AND LICENSE                                                                                
+W3Cï¿½ SOFTWARE NOTICE AND LICENSE                                                                                
                                                                                                                 
 This work (and included software, documentation such as READMEs, or other                                       
 related items) is being provided by the copyright holders under the following license.                          
@@ -82,7 +82,8 @@ split_string($string, $delineator, $desired, $type)
 DESCRIPTION:                                                             
         Returns a potion of the string that is either before or after    
         the delineator. The parse is not case sensitive, but the case of
-        the parsed string is not effected.								
+        the parsed string is not effected.	Also if can't find delineator
+        in target string return ''							
 INPUT:                                                                    
         $string         Input string to parse                            
         $delineator     Delineation point (place where split occurs)    
@@ -97,13 +98,19 @@ function split_string($string, $delineator, $desired, $type)
     $lc_str = strtolower($string);
 	$marker = strtolower($delineator);
     
+	$pos = strpos($lc_str, $marker);
+	if ($pos === false)    // Can't find delineator in target string
+	    return '';
+	
     # Return text BEFORE the delineator
     if($desired == BEFORE)
         {
         if($type == EXCL)  // Return text ESCL of the delineator
-            $split_here = strpos($lc_str, $marker);
+            $split_here = $pos;
         else               // Return text INCL of the delineator
-            $split_here = strpos($lc_str, $marker)+strlen($marker);
+        {
+            $split_here = $pos + strlen($marker);
+        }
         
         $parsed_string = substr($string, 0, $split_here);
         }
@@ -111,9 +118,9 @@ function split_string($string, $delineator, $desired, $type)
     else
         {
         if($type==EXCL)    // Return text ESCL of the delineator
-            $split_here = strpos($lc_str, $marker) + strlen($marker);
+            $split_here = $pos + strlen($marker);
         else               // Return text INCL of the delineator
-            $split_here = strpos($lc_str, $marker) ;
+            $split_here = $pos;
         
         $parsed_string =  substr($string, $split_here, strlen($string));
         }

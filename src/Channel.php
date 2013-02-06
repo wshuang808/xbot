@@ -1,13 +1,26 @@
 <?php
+    include_once 'wsss/LIB_parse.php';
     class Channel
     {
+        private $isSelected;
+        private $name;
+        private $link;
+        
         /**
          * Construct channel object from raw data
          * @param unknown $channelData
          */
         public function __construct($channelData)
         {
-            //TODO
+            $this->parseName($channelData);
+            $this->parseSelectState($channelData);
+            $this->parseLink($channelData);
+            
+            if ($this->name == '' ||
+                !$this->isSelected && $this->link == '')
+            {
+                throw new InvalidArgumentException('Invalid channel');
+            }
         }
         
         /**
@@ -15,7 +28,7 @@
          */
         public function is_selected()
         {
-            //TODO
+            return $this->isSelected;
         }
         
         /**
@@ -23,7 +36,7 @@
          */
         public function getName()
         {
-            //TODO
+            return $this->name;
         }
         
         /**
@@ -31,7 +44,27 @@
          */
         public function getLink()
         {
-            //TODO
+            return $this->link;
+        }
+        
+        private function parseName($channelData)
+        {
+            $name = return_between($channelData, '<b>', '</b>', EXCL);
+            if (!$name)
+            {
+                $name = return_between($channelData, '">', '</a>', EXCL);
+            }
+            $this->name = $name;
+        }
+        
+        private function parseSelectState($channelData)
+        {
+            $this->isSelected = (bool)return_between($channelData, '<b>', '</b>', EXCL);
+        }
+        
+        private function parseLink($channelData)
+        {
+            $this->link = return_between($channelData, 'ef="', '"', EXCL);
         }
     }
 ?>
