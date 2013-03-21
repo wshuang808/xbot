@@ -37,7 +37,7 @@ EOD;
             $channelItems = $this->pageParser->getChannelItems();
             $this->assertEquals(13, count($channelItems));
             $this->assertEquals('东方卫视', $channelItems[0]->getName());
-            
+            $this->assertEquals('上视东方哈哈少儿频道', $channelItems[12]->getName());
         }
     }
 ?>

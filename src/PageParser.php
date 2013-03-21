@@ -5,6 +5,7 @@
     define('CHANNEL_LIST_TAG_NAME', 'ul');
     define('CHANNEL_LIST_CLASS_NAME', 'r');
     define('CHANNEL_LIST_LINK_TAG', 'a');
+    define('CHANNEL_TAG_NAME', 'li');
     
     class PageParser
     {   
@@ -50,7 +51,7 @@
                 {
                     $channelHTML = $this->doc->saveHTML($channelNode);
                     $channel = Channel::createChannel($channelHTML);
-                    array_push($channels, $channelHTML);
+                    array_push($channels, $channel);
                 }
             }
             
@@ -116,15 +117,16 @@
             return $resultNodes;
         }    
 
-        private function getChannelListInGroup($goupNode)
+        private function getChannelListInGroup($groupNode)
         {
             $channels = array();
         
-            if ($node->hasChildNodes())
+            if ($groupNode->hasChildNodes())
             {
-                foreach ($node->childNodes as $channelNode)
+                foreach ($groupNode->childNodes as $node)
                 {
-                    array_push($channels, $channel);
+                    if ($this->isChannelNode($node))
+                        array_push($channels, $node);
                 }
             }
         
@@ -143,7 +145,13 @@
         
         private function isChannelListNode($node)
         {
-            
+            return CHANNEL_LIST_TAG_NAME == $node->nodeName && 
+                    CHANNEL_LIST_CLASS_NAME == $node->getAttribute('class');
+        }
+        
+        private function isChannelNode($node)
+        {
+            return CHANNEL_TAG_NAME == $node->nodeName;
         }
         
     }
