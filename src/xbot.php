@@ -1,22 +1,13 @@
 <?php
-    include("wsss/LIB_http.php");
-    include("HTMLParser.php");
+    include_once 'wsss/LIB_http.php';
+    include_once 'HTMLParser.php';
     
-    $target = "http://tvmao.com/program/SHHAI";
-    $ref = "";
+    $url = "http://tvmao.com/program/SHHAI";  
     
-    // Get raw html text
-    $return_array = http_get($target, $ref);
-    $html = $return_array['FILE'];
-    
-    $channels = HTMLParser::get_channel_list($html);
-    
-    /*
-    foreach($channels as $channel)
+    $parser = new PageParser($html, $url);
+    $channels = $parser->getAllChannels();
+    foreach ($channels as $channel)
     {
-        retrive_programs($channel);
+        $channel->syncToFile();
     }
-    */
-
-
 ?>

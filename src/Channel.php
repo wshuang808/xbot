@@ -8,25 +8,55 @@
         
         /**
          * Construct channel object from raw data
-         * @param unknown $channelData
          */
-        public function __construct($channelData)
+        public static function createChannel($channelData)
         {
-            $this->parseName($channelData);
-            $this->parseSelectState($channelData);
-            $this->parseLink($channelData);
+            $name = Channel::parseName($channelData);
+            $isSelected = Channel::parseSelectState($channelData);
+            $link = Channel::parseLink($channelData);
             
-            if ($this->name == '' ||
-                !$this->isSelected && $this->link == '')
+            if ($name == '' ||
+                !$isSelected && $link == '')
             {
-                throw new InvalidArgumentException('Invalid channel');
+                //TODO: log error for invalid channel data
+                echo 'Error: Invalid channel data';
+                return NULL;
             }
+            
+            return new Channel($name, $link, $isSelected);
+        }
+        
+        private static function parseName($channelData)
+        {
+            $name = return_between($channelData, '<b>', '</b>', EXCL);
+            if (!$name)
+            {
+                $name = return_between($channelData, '">', '</a>', EXCL);
+            }
+            return $name;
+        }
+        
+        private static function parseSelectState($channelData)
+        {
+            return (bool)return_between($channelData, '<b>', '</b>', EXCL);
+        }
+        
+        private static function parseLink($channelData)
+        {
+            return return_between($channelData, 'ef="', '"', EXCL);
+        }
+        
+        public function __construct($name, $link, $isSelected)
+        {
+            $this->name = $name;
+            $this->link = $link;
+            $this->isSelected = $isSelected;
         }
         
         /**
          * @return True if selected, false otherwise
          */
-        public function is_selected()
+        public function isSelected()
         {
             return $this->isSelected;
         }
@@ -45,26 +75,6 @@
         public function getLink()
         {
             return $this->link;
-        }
-        
-        private function parseName($channelData)
-        {
-            $name = return_between($channelData, '<b>', '</b>', EXCL);
-            if (!$name)
-            {
-                $name = return_between($channelData, '">', '</a>', EXCL);
-            }
-            $this->name = $name;
-        }
-        
-        private function parseSelectState($channelData)
-        {
-            $this->isSelected = (bool)return_between($channelData, '<b>', '</b>', EXCL);
-        }
-        
-        private function parseLink($channelData)
-        {
-            $this->link = return_between($channelData, 'ef="', '"', EXCL);
         }
     }
 ?>

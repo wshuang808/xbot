@@ -1,23 +1,53 @@
 <?php
+    include_once 'wsss/LIB_parse.php';
     class ChannelList
-    {
-        private $selectedChannel;
-        private $channelList;
+    {   
+        private $selectedIndex;
+        private $channels;
         
         /**
          * Construct this object through raw data
          * @param unknown $listData html text contains channel list
          */
-        public function __construct($listData)
+        public static function createChannelList($listData)
         {
-            //TODO
+            $channelDataList = parse_array($listData, '<li>', '</li>');
+            $channels = array();
+            $selectIndex = -1;
+            $selectCount = 0;
+            foreach($channelDataList as $i => $channelData)
+            {
+                $channel = Channel::createChannel($channelData);
+                if (!is_null($channel))
+                {
+                    $channels[] = $channel;
+                    if ($chanel->isSelected())
+                    {
+                        $selectIndex = count($channels)-1;
+                        ++$selectCount;
+                    }
+                }
+            }
+            
+            if ($selectCount != 1)
+            {
+                $channels = array();
+                $selectIndex = -1;
+                
+                //TODO: log error for invalid list data
+                echo 'Error: Invaid channel list data';
+            }
+            
+            return new ChannelList($channels, $selectIndex);
+        }
+
+        public function __construct($channels, $selectIndex)
+        {
+            $this->channels = $channels;
+            $this->selectedIndex = $selectIndex;
         }
         
-        /**
-         * Get current selected channel
-         * @return current selected channel object
-         */
-        public function get_selected_channel()
+        public function getNextChannel()
         {
             //TODO
         }
