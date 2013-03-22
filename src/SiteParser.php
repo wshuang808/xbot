@@ -1,18 +1,18 @@
 <?php
+    include_once 'wsss/LIB_http.php';
+    include_once 'Channel.php';
+    include_once 'PageParser.php';
     class SiteParser
     {
-        private $scheme;
+        private $url;
         private $host;
-        private $path;
-        
         private $channelList;
+
         public function __construct($url)
         {
+            $this->url = $url;
             $urlData = parse_url($url);
-            $this->scheme = $urlData['scheme'];
             $this->host = $urlData['host'];
-            $this->path = $urlData['path'];
-            
             $this->channelList = array();
         }
         
@@ -25,47 +25,58 @@
         // in the future, it will parse size based on city
         public function parseSite()
         {
+            $startParser = $this->getPageParser($this->url);
+
             $groupList = array();
-            $url = $this->getSiteURL();
-            $startPage = http_get($url);
-            $startParser = new PageParser($startPage['FILE']);
-
-            // add current url as the first element in group list
-            array_push($groupList, $url);
-            $groupItems = array_merge($groupList, $startParser->getOtherGroupItems());
             
-            $this->parseGroupList($groupItems);
+            // add current url as the first element in group list
+            array_push($groupList, $this->url);
+            
+            // add other group url
+            $otherGroups = $startParser->getOtherGroupItems();
+            foreach ($otherGroups as $groupItem)
+            {
+                array_push($groupList, $this->getGroupURL($groupItem));
+            }
+            
+            // parse group list
+            $this->parseGroupList($groupList);
         }
         
-        private function parseGroupList($groupItems)
+        private function parseGroupList($groupURLList)
         {
-            foreach ($groupURLList as $groupItem)
+            foreach ($groupURLList as $groupURL)
             {
-                $groupURL = $this->getGroupURL($groupItem);
-                $pageData = http_get($groupURL);
-                $pageParser = new pageParser($pageData['FILE']);
-
+                $pageParser = $this->getPageParser($groupURL);
                 $channelItems = $pageParser->getChannelItems();
-                $this->addChannels($channelItems);
+                $currentChannelURL = $groupURL;
+                $this->addChannels($channelItems, $currentChannelURL);
             }
         }
         
-        private function addChannels($channelItems)
+        private function addChannels($channelItems, $currentChannelURL)
         {
-            foreach ($channelItems as $channelItem)
+            foreach ($channelItems as $channelHTML)
             {
-                array_push($this->channelList, Channel::createChannel($channelItems));
+                $channel = Channel::createChannel($channelHTML, $currentChannelURL);
+                
+                array_push($this->channelList, $channel);
             }
+        }
+        
+        private function getPageParser($url)
+        {
+            $data = http_get($url, 'http://www.google.com');
+            $resultParser = new PageParser($data['FILE']);
+            
+            return $resultParser;
         }
         
         private function getGroupURL($groupItem)
         {
-            // TODO:
+            $path = return_between($groupItem, 'href="','">', EXCL);
+            return 'http://'.$this->host.$path;
         }
-        
-        private function getSiteURL()
-        {
-            return $url = $this->scheme + '://' + $this->host + $this->path;
-        }
+       
     }
 ?>

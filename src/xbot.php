@@ -1,5 +1,4 @@
 <?php
-    include_once 'wsss/LIB_http.php';
     include_once 'HTMLParser.php';
     
     $url = "http://tvmao.com/program/SHHAI";  

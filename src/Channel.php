@@ -9,21 +9,24 @@
         /**
          * Construct channel object from raw data
          */
-        public static function createChannel($channelData)
+        public static function createChannel($channelData, $selectedChannelURL)
         {
-            $name = Channel::parseName($channelData);
-            $isSelected = Channel::parseSelectState($channelData);
-            $link = Channel::parseLink($channelData);
-            
-            if ($name == '' ||
-                !$isSelected && $link == '')
+            if (Channel::isValidChannel($channelData))
             {
-                //TODO: log error for invalid channel data
-                echo 'Error: Invalid channel data';
+                $name = Channel::parseName($channelData);
+                $isSelected = Channel::parseSelectState($channelData);
+                
+                if ($isSelected)
+                    $link = $selectedChannelURL;
+                else
+                    $link = Channel::parseLink($channelData, $selectedChannelURL);
+                
+                return new Channel($name, $link, $isSelected);
+            }
+            else
+            {
                 return NULL;
             }
-            
-            return new Channel($name, $link, $isSelected);
         }
         
         private static function parseName($channelData)
@@ -41,9 +44,16 @@
             return (bool)return_between($channelData, '<b>', '</b>', EXCL);
         }
         
-        private static function parseLink($channelData)
+        private static function parseLink($channelData, $baseURL)
         {
-            return return_between($channelData, 'ef="', '"', EXCL);
+            $urlData = parse_url($baseURL);
+            $path = return_between($channelData, 'ef="', '"', EXCL);
+            return 'http://'.$urlData['host'].$path;
+        }
+        
+        private static function isValidChannel($channelData)
+        {
+            return FALSE !== strpos($channelData, '<li>');
         }
         
         public function __construct($name, $link, $isSelected)

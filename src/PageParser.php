@@ -1,5 +1,5 @@
 <?php    
-    include_once 'Channel.php';
+    include_once 'wsss/LIB_parse.php';
     define('CHANNEL_GROUP_CLASS_NAME', 'chlsnav');
     define('CHANNEL_GROUP_TAG_NAME', 'div');
     define('CHANNEL_LIST_TAG_NAME', 'ul');
@@ -14,12 +14,14 @@
         public function __construct($html)
         {
             try{
+                libxml_use_internal_errors(TRUE);
                 $this->doc = DOMDocument::loadHTML($html);
+                libxml_clear_errors();
             }
             catch (Exception $e)
             {
-                echo 'Create DOMDocument failed';
-            } 
+                echo $e->getMessage();
+            }
         }
         
         public function getOtherGroupItems()
@@ -50,8 +52,7 @@
                 foreach($channelNodes as $channelNode)
                 {
                     $channelHTML = $this->doc->saveHTML($channelNode);
-                    $channel = Channel::createChannel($channelHTML);
-                    array_push($channels, $channel);
+                    array_push($channels, $channelHTML);
                 }
             }
             
