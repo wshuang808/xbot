@@ -9,13 +9,6 @@
             $siteParser->parseSite();
             $channels = $siteParser->getChannels();
             
-
-            foreach ($channels as $channel)
-            {
-                echo $channel->getName().' '.$channel->getLink()."\n";
-            }
-
-            
             $this->assertEquals(51, count($channels));
         }
     }
