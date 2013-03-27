@@ -1,159 +1,102 @@
 <?php    
-    include_once 'wsss/LIB_parse.php';
-    define('CHANNEL_GROUP_CLASS_NAME', 'chlsnav');
-    define('CHANNEL_GROUP_TAG_NAME', 'div');
+    include_once 'wsss/LIB_http.php';
+    define('DIVISION_NODE_TAG_NAME', 'div');
+    define('DIVISION_NODE_CLASS_NAME', 'pgnav_wrap');
+    define('STATION_NODE_TAG_NAME', 'div');
+    define('STATION_NODE_CLASS_NAME', 'chlsnav');
     define('CHANNEL_LIST_TAG_NAME', 'ul');
     define('CHANNEL_LIST_CLASS_NAME', 'r');
-    define('CHANNEL_LIST_LINK_TAG', 'a');
-    define('CHANNEL_TAG_NAME', 'li');
+    define('PROGRAM_LIST_TAG_NAME', 'div');
+    define('PROGRAM_LIST_CLASS_NAME', 'epg mt10 mb10');
+    //define('CHANNEL_LIST_LINK_TAG', 'a');
+    //define('CHANNEL_TAG_NAME', 'li');
+    
+    define('TYPE_DIVISION', 0);
+    define('TYPE_STATION', 1);
+    define('TYPE_CHANNEL', 2);
+    define('TYPE_PROGRAM', 3);
     
     class PageParser
     {   
-        private $doc;
+        private static $nodeTags = array(
+            TYPE_DIVISION => DIVISION_NODE_TAG_NAME,
+            TYPE_STATION => STATION_NODE_TAG_NAME,
+            TYPE_CHANNEL => CHANNEL_LIST_TAG_NAME,
+            TYPE_PROGRAM => PROGRAM_LIST_TAG_NAME,
+        );
         
-        public function __construct($html)
+        private static $nodeClasses = array(
+            TYPE_DIVISION => DIVISION_NODE_CLASS_NAME,
+            TYPE_STATION => STATION_NODE_CLASS_NAME,
+            TYPE_CHANNEL => CHANNEL_LIST_CLASS_NAME,
+            TYPE_PROGRAM => PROGRAM_LIST_CLASS_NAME,
+        );
+        
+        ////////////////// PUBLIC FUNCTION //////////////////
+        
+        public static function getNodeByType($url, $type)
         {
-            try{
-                libxml_use_internal_errors(TRUE);
-                $this->doc = DOMDocument::loadHTML($html);
-                libxml_clear_errors();
-            }
-            catch (Exception $e)
+            $result = '';
+            $doc = self::getHTMLDoc($url);
+            
+            if (isset($doc))
             {
-                echo $e->getMessage();
+                //$handler = self::getHandlerByType($type);
+                $node = self::getNodeImp($doc, $type);
+                
+                if (isset($node))
+                    $result = $doc->saveHTML($node);
             }
+            
+            return $result;
         }
         
-        public function getOtherGroupItems()
+        ////////////////// PRIVATE FUNCTION //////////////////
+        
+        private static function getNodeImp($docObj, $type)
         {
-            $otherGroups = array();
-        
-            if (isset($this->doc))
-            {
-                $otherGroupNodes = $this->getOtherGroupNodes();
-                foreach ($otherGroupNodes as $node)
-                {
-                    $groupHTML = $this->doc->saveHTML($node);
-                    array_push($otherGroups, $groupHTML);
-                }
-            }
-        
-            return $otherGroups;
-        }        
-        
-        public function getChannelItems()
-        {
-            $currentGroup = $this->getCurrentGroupNode();
-            $channelNodes = $this->getChannelListInGroup($currentGroup);
+            $resultNode = NULL;
             
-            $channels = array();
-            if (isset($this->doc))
-            {
-                foreach($channelNodes as $channelNode)
-                {
-                    $channelHTML = $this->doc->saveHTML($channelNode);
-                    array_push($channels, $channelHTML);
-                }
-            }
+            $targetNodeTag = self::getNodeTagByType($type);
+            $targetNodeClass = self::getNodeClassByType($type);
             
-            return $channels;
-        }
-
-        ////////////////////////////////////////////////////////////////////////////////
-        
-        private function getChannelGroupsNode()
-        {
-            if (isset($this->doc))
+            $possibleNodes = $docObj->getElementsByTagName($targetNodeTag);
+            foreach ($possibleNodes as $node)
             {
-                $possibleNodes = $this->doc->getElementsByTagName(CHANNEL_GROUP_TAG_NAME);
-                foreach ($possibleNodes as $node)
+                if (self::isTargetNode($node, $targetNodeTag, $targetNodeClass))
                 {
-                    if ($this->isChannelGroupNode($node))
-                    {
-                        $channelGroupNode = $node;
-                        break;
-                    }
-                }
-            }
-
-            return $channelGroupNode;
-        } 
-
-        private function getCurrentGroupNode()
-        {
-            $channelGroupsNode = $this->getChannelGroupsNode();
-            
-            if (isset($channelGroupsNode) && $channelGroupsNode->hasChildNodes())
-            {
-                foreach ($channelGroupsNode->childNodes as $node)
-                {
-                    if ($this->isChannelListNode($node))
-                    {
-                        $currentGroupNode = $node;
-                        break;
-                    }
+                    $resultNode = $node;
+                    break;
                 }
             }
             
-            return $currentGroupNode;
+            return $resultNode;
         }
         
-        private function getOtherGroupNodes()
+        private static function getNodeTagByType($type)
         {
-            $resultNodes = array();
-        
-            $channelGroupsNode = $this->getChannelGroupsNode();
-        
-            if (isset($channelGroupsNode) && $channelGroupsNode->hasChildNodes())
-            {
-                foreach ($channelGroupsNode->childNodes as $node)
-                {
-                    if ($this->isChannelGroupLink($node))
-                    {
-                        array_push($resultNodes, $node);
-                    }
-                }
-            }
-        
-            return $resultNodes;
-        }    
-
-        private function getChannelListInGroup($groupNode)
-        {
-            $channels = array();
-        
-            if ($groupNode->hasChildNodes())
-            {
-                foreach ($groupNode->childNodes as $node)
-                {
-                    if ($this->isChannelNode($node))
-                        array_push($channels, $node);
-                }
-            }
-        
-            return $channels;
-        } 
-        
-        private function isChannelGroupNode($node)
-        {
-            return CHANNEL_GROUP_CLASS_NAME == $node->getAttribute('class');
-        }  
-
-        private function isChannelGroupLink($node)
-        {
-            return CHANNEL_LIST_LINK_TAG == $node->nodeName;
+            return self::$nodeTags[$type];
         }
         
-        private function isChannelListNode($node)
+        private static function getNodeClassByType($type)
         {
-            return CHANNEL_LIST_TAG_NAME == $node->nodeName && 
-                    CHANNEL_LIST_CLASS_NAME == $node->getAttribute('class');
+            return self::$nodeClasses[$type];
         }
         
-        private function isChannelNode($node)
+        private static function getHTMLDoc($url)
         {
-            return CHANNEL_TAG_NAME == $node->nodeName;
+            $htmlContent = http_get($url, 'http://bot.google.com');
+            libxml_use_internal_errors(TRUE);
+            $doc = DOMDocument::loadHTML($htmlContent['FILE']);
+            libxml_clear_errors();
+        
+            return $doc;
         }
         
+        private static function isTargetNode($node, $targetTag, $targetClass)
+        {
+            return $targetTag == $node->nodeName &&
+            $targetClass == $node->getAttribute('class');
+        }
     }
 ?>
