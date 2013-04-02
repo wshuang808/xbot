@@ -1,48 +1,19 @@
 <?php    
     include_once 'wsss/LIB_http.php';
-    define('DIVISION_NODE_TAG_NAME', 'div');
-    define('DIVISION_NODE_CLASS_NAME', 'pgnav_wrap');
-    define('STATION_NODE_TAG_NAME', 'div');
-    define('STATION_NODE_CLASS_NAME', 'chlsnav');
-    define('CHANNEL_LIST_TAG_NAME', 'ul');
-    define('CHANNEL_LIST_CLASS_NAME', 'r');
-    define('PROGRAM_LIST_TAG_NAME', 'div');
-    define('PROGRAM_LIST_CLASS_NAME', 'epg mt10 mb10');
-    //define('CHANNEL_LIST_LINK_TAG', 'a');
-    //define('CHANNEL_TAG_NAME', 'li');
-    
-    define('TYPE_DIVISION', 0);
-    define('TYPE_STATION', 1);
-    define('TYPE_CHANNEL', 2);
-    define('TYPE_PROGRAM', 3);
-    
+
     class PageParser
     {   
-        private static $nodeTags = array(
-            TYPE_DIVISION => DIVISION_NODE_TAG_NAME,
-            TYPE_STATION => STATION_NODE_TAG_NAME,
-            TYPE_CHANNEL => CHANNEL_LIST_TAG_NAME,
-            TYPE_PROGRAM => PROGRAM_LIST_TAG_NAME,
-        );
-        
-        private static $nodeClasses = array(
-            TYPE_DIVISION => DIVISION_NODE_CLASS_NAME,
-            TYPE_STATION => STATION_NODE_CLASS_NAME,
-            TYPE_CHANNEL => CHANNEL_LIST_CLASS_NAME,
-            TYPE_PROGRAM => PROGRAM_LIST_CLASS_NAME,
-        );
-        
         ////////////////// PUBLIC FUNCTION //////////////////
         
-        public static function getNodeByType($url, $type)
+        public static function getNodeByProto($url, $prototype)
         {
             $result = '';
             $doc = self::getHTMLDoc($url);
-            
+
             if (isset($doc))
             {
                 //$handler = self::getHandlerByType($type);
-                $node = self::getNodeImp($doc, $type);
+                $node = self::getNodeImp($doc, $prototype);
                 
                 if (isset($node))
                     $result = $doc->saveHTML($node);
@@ -53,50 +24,84 @@
         
         ////////////////// PRIVATE FUNCTION //////////////////
         
-        private static function getNodeImp($docObj, $type)
+        /**
+         * Get the first node in $docObj which matches $prototype
+         * @param unknown $docObj
+         * @param unknown $prototype
+         * @return NULL
+         */
+        private static function getNodeImp($docObj, $prototype)
         {
             $resultNode = NULL;
+            $protoNode = self::getDOMNodeFromProto($prototype);
             
-            $targetNodeTag = self::getNodeTagByType($type);
-            $targetNodeClass = self::getNodeClassByType($type);
-            
-            $possibleNodes = $docObj->getElementsByTagName($targetNodeTag);
-            foreach ($possibleNodes as $node)
+            if (isset($protoNode))
             {
-                if (self::isTargetNode($node, $targetNodeTag, $targetNodeClass))
+                $targetTag = $protoNode->nodeName;
+                $possibleNodes = $docObj->getElementsByTagName($targetTag);
+                foreach ($possibleNodes as $possibleNode)
                 {
-                    $resultNode = $node;
-                    break;
+                    if (self::isTargetNode($possibleNode, $protoNode))
+                    {
+                        $resultNode = $possibleNode;
+                        break;
+                    }
                 }
             }
             
             return $resultNode;
         }
         
-        private static function getNodeTagByType($type)
+        /**
+         * @param $prototype is an html node header. e.g. <ul class ="r" />
+         */
+        public static function getDOMNodeFromProto($prototype)
         {
-            return self::$nodeTags[$type];
-        }
-        
-        private static function getNodeClassByType($type)
-        {
-            return self::$nodeClasses[$type];
+            $resultNode = NULL;
+            libxml_use_internal_errors(TRUE);
+            $doc = DOMDocument::loadXML($prototype);
+            libxml_clear_errors();
+            if (isset($doc))
+            {
+                $resultNode = $doc->firstChild;
+            }
+            else
+            {
+                echo "Warning: invalid prototype";
+            }
+            return $resultNode;
         }
         
         private static function getHTMLDoc($url)
         {
             $htmlContent = http_get($url, 'http://bot.google.com');
+        
             libxml_use_internal_errors(TRUE);
             $doc = DOMDocument::loadHTML($htmlContent['FILE']);
             libxml_clear_errors();
-        
             return $doc;
         }
         
-        private static function isTargetNode($node, $targetTag, $targetClass)
+        private static function isTargetNode($node, $protoNode)
         {
-            return $targetTag == $node->nodeName &&
-            $targetClass == $node->getAttribute('class');
+            $result = FALSE;
+            if ($node->nodeName == $protoNode->nodeName)
+            {
+                $result = TRUE;
+                $attributes = $protoNode->attributes;
+                foreach ($attributes as $attribute)
+                {
+                    $attributeName = $attribute->nodeName;
+                    $attributeValue = $attribute->nodeValue;
+                    if ($node->getAttribute($attributeName) != $attributeValue)
+                    {
+                        $result = FALSE;
+                        break;
+                    }
+                }
+            }
+            
+            return $result;
         }
     }
 ?>
