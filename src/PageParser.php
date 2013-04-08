@@ -5,10 +5,18 @@
     {   
         ////////////////// PUBLIC FUNCTION //////////////////
         
+        /**
+         * Get the $prototype specific html node from $url 
+         * 
+         * @param unknown $url
+         * @param unknown $prototype
+         * @return string
+         */
         public static function getNodeByProto($url, $prototype)
         {
             $result = '';
-            $doc = self::getHTMLDoc($url);
+            $htmlContent = http_get($url, 'http://bot.google.com');
+            $doc = self::getDocFromHTML($htmlContent['FILE']);;
 
             if (isset($doc))
             {
@@ -20,6 +28,24 @@
             }
             
             return $result;
+        }
+        
+        public static function getDocFromXML($xml)
+        {
+            libxml_use_internal_errors(TRUE);
+            $doc = DOMDocument::loadXML($xml);
+            libxml_clear_errors();
+        
+            return $doc;
+        }
+        
+        public static function getDocFromHTML($html)
+        {
+            libxml_use_internal_errors(TRUE);
+            $doc = DOMDocument::loadHTML($html);
+            libxml_clear_errors();
+        
+            return $doc;
         }
         
         ////////////////// PRIVATE FUNCTION //////////////////
@@ -55,12 +81,10 @@
         /**
          * @param $prototype is an html node header. e.g. <ul class ="r" />
          */
-        public static function getDOMNodeFromProto($prototype)
+        private static function getDOMNodeFromProto($prototype)
         {
             $resultNode = NULL;
-            libxml_use_internal_errors(TRUE);
-            $doc = DOMDocument::loadXML($prototype);
-            libxml_clear_errors();
+            $doc = self::getDocFromXML($prototype);
             if (isset($doc))
             {
                 $resultNode = $doc->firstChild;
@@ -70,16 +94,6 @@
                 echo "Warning: invalid prototype";
             }
             return $resultNode;
-        }
-        
-        private static function getHTMLDoc($url)
-        {
-            $htmlContent = http_get($url, 'http://bot.google.com');
-        
-            libxml_use_internal_errors(TRUE);
-            $doc = DOMDocument::loadHTML($htmlContent['FILE']);
-            libxml_clear_errors();
-            return $doc;
         }
         
         private static function isTargetNode($node, $protoNode)
