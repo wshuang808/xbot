@@ -14,23 +14,22 @@
          */
         public static function getNodeByProto($url, $prototype)
         {
-            $result = '';
+            $result = NULL;
             $htmlContent = http_get($url, 'http://bot.google.com');
             $doc = self::getDocFromHTML($htmlContent['FILE']);;
 
             if (isset($doc))
             {
                 //$handler = self::getHandlerByType($type);
-                $node = self::getNodeImp($doc, $prototype);
-                
-                if (isset($node))
-                    $result = $doc->saveHTML($node);
+                $result = self::getNodeImp($doc, $prototype);
             }
             
             return $result;
         }
         
-        public static function getDocFromXML($xml)
+        ////////////////// PRIVATE FUNCTION //////////////////
+        
+        private static function getDocFromXML($xml)
         {
             libxml_use_internal_errors(TRUE);
             $doc = DOMDocument::loadXML($xml);
@@ -39,7 +38,7 @@
             return $doc;
         }
         
-        public static function getDocFromHTML($html)
+        private static function getDocFromHTML($html)
         {
             libxml_use_internal_errors(TRUE);
             $doc = DOMDocument::loadHTML($html);
@@ -47,8 +46,6 @@
         
             return $doc;
         }
-        
-        ////////////////// PRIVATE FUNCTION //////////////////
         
         /**
          * Get the first node in $docObj which matches $prototype
