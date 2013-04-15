@@ -17,10 +17,9 @@
             $this->assertEquals(36, $numRegion);
         }
         
-        public function testGetFullURL()
+        public function testSyncData()
         {
-            $url = $this->site->getFullURL('/abc');
-            $this->assertEquals('http://tvmao.com/abc', $url);
+            $this->site->syncData();
         }
     }
 ?>

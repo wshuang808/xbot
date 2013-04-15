@@ -3,6 +3,8 @@
     include_once 'PageParser.php';
     include_once 'TVmaoSite.php';
     include_once 'Station.php';
+    include_once 'Platform.php';
+    include_once 'TextUtil.php';
     
     class Region
     {
@@ -33,6 +35,30 @@
             }
             
             return $this->stationList;
+        }
+        
+        public function syncData()
+        {
+            $nameHash = getHash($this->name);
+            $dir = ROOT_FOLDER_LOCATION.PATH_DIVIDER.$nameHash;
+            if (!is_dir($dir))
+                mkdir($dir);
+            
+            $fp = fopen($dir.INDEX_FILE, 'w');
+            
+            $stationList = $this->getStationList();
+            foreach ($stationList as $station)
+            {
+                fwrite($fp, $station->getName().LINE_BREAK);
+                $station->syncData($dir);
+            }
+            
+            fclose($fp);
+        }
+        
+        public function getName()
+        {
+            return $this->name;
         }
         
         private function parseStationListNode($stationListNode)

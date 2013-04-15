@@ -12,9 +12,9 @@ class ProgramTest extends PHPUnit_Framework_TestCase
         $this->program = $programList[0];
     }
     
-    public function testTemp()
+    public function testGetFormatData()
     {
-        
+        echo $this->program->getFormatData();
     }
 }
 ?>

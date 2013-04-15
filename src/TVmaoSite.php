@@ -2,6 +2,7 @@
     include_once 'SiteFormatConst.php';
     include_once 'PageParser.php';
     include_once 'Region.php';
+    include_once 'Platform.php';
     
     class TVmaoSite
     {
@@ -33,6 +34,23 @@
             }
 
             return $this->regionList;
+        }
+        
+        public function syncData()
+        {
+            if (!is_dir(ROOT_FOLDER_LOCATION))
+                mkdir(ROOT_FOLDER_LOCATION);
+            
+            $fp = fopen(ROOT_FOLDER_LOCATION.INDEX_FILE, 'w');
+            
+            $regionList = $this->getRegionList();
+            foreach ($regionList as $region)
+            {
+                fwrite($fp, $region->getName().LINE_BREAK);
+                $region->syncData();
+            }
+            
+            fclose($fp);
         }
         
         /**

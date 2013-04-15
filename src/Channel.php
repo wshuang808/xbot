@@ -2,6 +2,8 @@
     include_once 'PageParser.php';
     include_once 'SiteFormatConst.php';
     include_once 'Program.php';
+    include_once 'Platform.php';
+    include_once 'TextUtil.php';
     
     class Channel
     {
@@ -27,6 +29,26 @@
             }
             
             return $this->programList;
+        }
+        
+        public function getName()
+        {
+            return $this->name;
+        }
+        
+        public function syncData($rootDir)
+        {
+            $nameHash = getHash($this->name);
+            
+            $fp = fopen($rootDir.PATH_DIVIDER.$nameHash.'.txt', 'w');
+            
+            $programList = $this->getProgramList();
+            foreach ($programList as $program)
+            {
+                fwrite($fp, $program->getFormatData().LINE_BREAK);
+            }
+            
+            fclose($fp);
         }
         
         private function parseProgramListNode($programListNode)

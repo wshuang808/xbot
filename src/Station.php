@@ -3,6 +3,8 @@
     include_once 'TVmaoSite.php';
     include_once 'Channel.php';
     include_once 'SiteFormatConst.php';
+    include_once 'Platform.php';
+    include_once 'TextUtil.php';
     
     class Station
     {
@@ -28,6 +30,30 @@
             }
             
             return $this->channelList;
+        }
+        
+        public function syncData($rootDir)
+        {
+            $nameHash = getHash($this->name);
+            $dir = $rootDir.PATH_DIVIDER.$nameHash;
+            if (!is_dir($dir))
+                mkdir($dir);
+            
+            $fp = fopen($dir.INDEX_FILE, 'w');
+            
+            $channelList = $this->getChannelList();
+            foreach ($channelList as $channel)
+            {
+                fwrite($fp, $channel->getName().LINE_BREAK);
+                $channel->syncData($dir);
+            }
+            
+            fclose($fp);
+        }
+        
+        public function getName()
+        {
+            return $this->name;
         }
         
         private function parseChannelListNode($channelListNode)

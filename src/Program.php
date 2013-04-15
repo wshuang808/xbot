@@ -23,6 +23,11 @@
             }
         }
         
+        public function getFormatData()
+        {
+            return $this->time.' '.$this->name;
+        }
+        
         private function isTimeNode($node)
         {
             return $node->nodeName == TAG_PROGRAM_TIME;
