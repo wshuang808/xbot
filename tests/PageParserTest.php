@@ -1,37 +1,37 @@
 <?php
+    include 'SiteFormatConst.php';
     include 'PageParser.php';
-    
-    define('PROTOTYPE_CHANNEL', '<ul class="r" />');
-    define('PROTOTYPE_PROGRAM', '<ul id="pgrow" />');
-    define('PROTOTYPE_STATION', '<div class="chlsnav" />');
-    define('PROTOTYPE_DIVISION', '<table class="pgnav" />');
     
     class PageParserTest extends PHPUnit_Framework_TestCase
     {
-//         public function testGetChannelList()
-//         {
-//             $channels = PageParser::getNodeByProto('http://tvmao.com/program/SHHAI-DONGFANG1-w1.html', PROTOTYPE_CHANNEL);
-//             echo $channels;
-//         }
+        public function testGetChannelList()
+        {
+            $channelNode = PageParser::getNodeByProto('http://tvmao.com/program/SHHAI-DONGFANG1-w1.html', PROTOTYPE_CHANNEL);
+            $class = $channelNode->getAttribute('class');
+            $this->assertEquals('r', $class);
+        }
         
         
-//         public function testGetStationList()
-//         {
-//             $stations = PageParser::getNodeByProto('http://tvmao.com/program/SHHAI-DONGFANG1-w1.html', PROTOTYPE_STATION);
-//             echo $stations;
-//         }
+        public function testGetStationList()
+        {
+            $stationNode = PageParser::getNodeByProto('http://tvmao.com/program/SHHAI-DONGFANG1-w1.html', PROTOTYPE_STATION);
+            $class = $stationNode->getAttribute('class');
+            $this->assertEquals('chlsnav', $class);
+        }
         
 
-//         public function testGetProgramList()
-//         {
-//             $programs = PageParser::getNodeByProto('http://tvmao.com/program/SHHAI-DONGFANG1-w1.html', PROTOTYPE_PROGRAM);
-//             echo $programs;
-//         }
-        
-        public function testGetDivisionList()
+        public function testGetProgramList()
         {
-            $divisions = PageParser::getNodeByProto('http://tvmao.com/program/SHHAI-DONGFANG1-w1.html', PROTOTYPE_DIVISION);
-            echo $divisions;
+            $programNode = PageParser::getNodeByProto('http://tvmao.com/program/SHHAI-DONGFANG1-w1.html', PROTOTYPE_PROGRAM);
+            $id = $programNode->getAttribute('id');
+            $this->assertEquals('pgrow', $id);
+        }
+        
+        public function testGetRegionList()
+        {
+            $regionNode = PageParser::getNodeByProto('http://tvmao.com/program/SHHAI-DONGFANG1-w1.html', PROTOTYPE_REGION);
+            $class = $regionNode->getAttribute('class');
+            $this->assertEquals('pgnav', $class);
         }
     }
 ?>

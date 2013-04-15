@@ -3,13 +3,11 @@
     
     class RegionTest extends PHPUnit_Framework_TestCase
     {
-        private $site;
         private $region;
         
         protected function setUp()
         {
-            $site = new TVmaoSite();
-            $this->region = new Region($site, '北京','http://tvmao.com/program/BTV-BTV1-w7.html');
+            $this->region = new Region('北京','http://tvmao.com/program/BTV-BTV1-w7.html');
         }
 
         public function testGetStationList()

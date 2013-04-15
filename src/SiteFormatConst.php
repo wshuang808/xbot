@@ -5,6 +5,7 @@
     define('PROTOTYPE_STATION', '<div class="chlsnav" />');
     define('PROTOTYPE_REGION', '<table class="pgnav" />');
     define('ATTR_URL', 'href');
+    define('ATTR_ID', 'id');
     
     // region
     define('TAG_REGION', 'a');
@@ -17,4 +18,9 @@
     // channel
     define('TAG_CHANNEL', 'a');
     define('TAG_CURRENT_CHANNEL', 'b');
+
+    // program
+    define('TAG_PROGRAM', 'li');
+    define('TAG_PROGRAM_TIME', 'span');
+    define('TAG_PROGRAM_EXCPTION', 'div');
 ?>

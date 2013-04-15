@@ -6,14 +6,12 @@
     
     class Region
     {
-        private $site;
         private $name;
         private $url;
         private $stationList;
         
-        public function __construct($site, $name, $url)
+        public function __construct($name, $url)
         {
-            $this->site = $site;
             $this->name = $name;
             $this->url = $url;
         }
@@ -26,7 +24,7 @@
 
                 $currentStationNode = PageParser::getNodeByProto($this->url, PROTOTYPE_CURRENT_STATION);
                 $currentStationName = $currentStationNode->firstChild->nodeValue;
-                $currentStation = new Station($this->site, $currentStationName, $this->url);
+                $currentStation = new Station($currentStationName, $this->url);
                 array_push($this->stationList, $currentStation);
                 
                 $stationListNode = PageParser::getNodeByProto($this->url, PROTOTYPE_STATION);                
@@ -46,8 +44,8 @@
                 {
                     $stationName = $childNode->nodeValue;
                     $stationURL = $childNode->getAttribute(ATTR_URL);
-                    $url = $this->site->getFullURL($stationURL);
-                    $station = new Station($this->site, $stationName, $url);
+                    $url = TVmaoSite::getFullURL($stationURL);
+                    $station = new Station($stationName, $url);
                     array_push($this->stationList, $station);
                 }
             }

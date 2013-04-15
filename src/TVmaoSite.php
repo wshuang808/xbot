@@ -5,7 +5,7 @@
     
     class TVmaoSite
     {
-        private $baseURL = 'http://tvmao.com';
+        private static $baseURL = 'http://tvmao.com';
         private $regionList;
         
         private $exceptionList;
@@ -15,9 +15,9 @@
             $this->exceptionList = array('湖南卫视','江苏卫视','东方卫视','浙江卫视','北京卫视','安徽卫视');
         }
         
-        public function getFullURL($relativeURL)
+        public static function getFullURL($relativeURL)
         {
-            return $this->baseURL.$relativeURL;
+            return self::$baseURL.$relativeURL;
         }
         
         public function getRegionList()
@@ -25,7 +25,7 @@
             
             if (!isset($this->regionList))
             {
-                $regionListNode = PageParser::getNodeByProto($this->baseURL, PROTOTYPE_REGION);
+                $regionListNode = PageParser::getNodeByProto(self::$baseURL, PROTOTYPE_REGION);
                 $this->regionList = array();
                 
                 if (isset($regionListNode))
@@ -49,7 +49,7 @@
                 $regionName = $regionNode->nodeValue;
                 $relativeURL = $regionNode->getAttribute(ATTR_URL);
                 $url = $this->getFullURL($relativeURL);
-                $region = new Region($this, $regionName, $url);
+                $region = new Region($regionName, $url);
                 array_push($this->regionList, $region);
             }
         }

@@ -1,90 +1,51 @@
 <?php
-    include_once 'wsss/LIB_parse.php';
+    include_once 'PageParser.php';
+    include_once 'SiteFormatConst.php';
+    include_once 'Program.php';
+    
     class Channel
     {
-        private $isSelected;
         private $name;
-        private $link;
-        
-        /**
-         * Construct channel object from raw data
-         */
-        public static function createChannel($channelData, $selectedChannelURL)
-        {
-            if (Channel::isValidChannel($channelData))
-            {
-                $name = Channel::parseName($channelData);
-                $isSelected = Channel::parseSelectState($channelData);
-                
-                if ($isSelected)
-                    $link = $selectedChannelURL;
-                else
-                    $link = Channel::parseLink($channelData, $selectedChannelURL);
-                
-                return new Channel($name, $link, $isSelected);
-            }
-            else
-            {
-                return NULL;
-            }
-        }
-        
-        private static function parseName($channelData)
-        {
-            $name = return_between($channelData, '<b>', '</b>', EXCL);
-            if (!$name)
-            {
-                $name = return_between($channelData, '">', '</a>', EXCL);
-            }
-            return $name;
-        }
-        
-        private static function parseSelectState($channelData)
-        {
-            return (bool)return_between($channelData, '<b>', '</b>', EXCL);
-        }
-        
-        private static function parseLink($channelData, $baseURL)
-        {
-            $urlData = parse_url($baseURL);
-            $path = return_between($channelData, 'ef="', '"', EXCL);
-            return 'http://'.$urlData['host'].$path;
-        }
-        
-        private static function isValidChannel($channelData)
-        {
-            return FALSE !== strpos($channelData, '<li>');
-        }
-        
-        public function __construct($name, $link, $isSelected)
+        private $url;
+        private $programList;
+
+        public function __construct($name, $url)
         {
             $this->name = $name;
-            $this->link = $link;
-            $this->isSelected = $isSelected;
+            $this->url = $url;
+        }
+
+        public function getProgramList()
+        {
+            if (!isset($this->programList))
+            {
+                $this->programList = array();
+            
+                $programListNode = PageParser::getNodeByProto($this->url, PROTOTYPE_PROGRAM);
+                if (isset($programListNode))
+                    $this->parseProgramListNode($programListNode);
+            }
+            
+            return $this->programList;
         }
         
-        /**
-         * @return True if selected, false otherwise
-         */
-        public function isSelected()
+        private function parseProgramListNode($programListNode)
         {
-            return $this->isSelected;
+            $childNodes = $programListNode->childNodes;
+            foreach ($childNodes as $childNode)
+            {
+                if ($this->isProgramNode($childNode))
+                {
+                    $program = new Program($childNode);
+                    array_push($this->programList, $program);
+                }
+            }
         }
         
-        /**
-         * @return channel's name
-         */
-        public function getName()
+        private function isProgramNode($node)
         {
-            return $this->name;
-        }
-        
-        /**
-         * @return link to page which contains program data of this channel
-         */
-        public function getLink()
-        {
-            return $this->link;
+            return $node->nodeName == TAG_PROGRAM && 
+                    !$node->hasAttribute(ATTR_ID);
         }
     }
 ?>

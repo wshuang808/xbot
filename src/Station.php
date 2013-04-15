@@ -6,14 +6,12 @@
     
     class Station
     {
-        private $site;
         private $name;
         private $url;
         private $channelList;
         
-        public function __construct($site, $name, $url)
+        public function __construct($name, $url)
         {
-            $this->site = $site;
             $this->name = $name;
             $this->url = $url;
         }
@@ -37,7 +35,7 @@
             $tempList = $channelListNode->getElementsByTagName(TAG_CURRENT_CHANNEL);
             $currentChannelNode = $tempList->item(0);
             $currentChannelName = $currentChannelNode->nodeValue;
-            $currentChannel = new Channel($currentChannelName, $this->url, TRUE);
+            $currentChannel = new Channel($currentChannelName, $this->url);
             array_push($this->channelList, $currentChannel);
             
             $channels = $channelListNode->getElementsByTagName(TAG_CHANNEL);
@@ -45,8 +43,8 @@
             {
                 $channelName = $channelNode->nodeValue;
                 $channelURL = $channelNode->getAttribute(ATTR_URL);
-                $url = $this->site->getFullURL($channelURL);
-                $channel = new Channel($channelName, $url, FALSE);
+                $url = TVmaoSite::getFullURL($channelURL);
+                $channel = new Channel($channelName, $url);
                 
                 array_push($this->channelList, $channel);
             }
