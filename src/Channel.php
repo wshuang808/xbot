@@ -36,11 +36,13 @@
             return $this->name;
         }
         
-        public function syncData($rootDir)
+        public function syncData($rootDir, &$keyMap)
         {
             $nameHash = getHash($this->name);
             
-            $fp = fopen($rootDir.PATH_DIVIDER.$nameHash.'.txt', 'w');
+            $fileLocation = $rootDir.PATH_DIVIDER.$nameHash.'.txt';
+            $fp = fopen($fileLocation, 'w');
+            $keyMap[$this->name] = $fileLocation;
             
             $programList = $this->getProgramList();
             foreach ($programList as $program)

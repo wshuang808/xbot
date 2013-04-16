@@ -37,10 +37,12 @@
             return $this->stationList;
         }
         
-        public function syncData()
+        public function syncData(&$keyMap)
         {
             $nameHash = getHash($this->name);
             $dir = ROOT_FOLDER_LOCATION.PATH_DIVIDER.$nameHash;
+            $keyMap[$this->name] = $dir;
+            
             if (!is_dir($dir))
                 mkdir($dir);
             
@@ -50,7 +52,7 @@
             foreach ($stationList as $station)
             {
                 fwrite($fp, $station->getName().LINE_BREAK);
-                $station->syncData($dir);
+                $station->syncData($dir, $keyMap);
             }
             
             fclose($fp);

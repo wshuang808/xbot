@@ -32,10 +32,12 @@
             return $this->channelList;
         }
         
-        public function syncData($rootDir)
+        public function syncData($rootDir, &$keyMap)
         {
             $nameHash = getHash($this->name);
             $dir = $rootDir.PATH_DIVIDER.$nameHash;
+            $keyMap[$this->name] = $dir;
+            
             if (!is_dir($dir))
                 mkdir($dir);
             
@@ -45,7 +47,7 @@
             foreach ($channelList as $channel)
             {
                 fwrite($fp, $channel->getName().LINE_BREAK);
-                $channel->syncData($dir);
+                $channel->syncData($dir, $keyMap);
             }
             
             fclose($fp);

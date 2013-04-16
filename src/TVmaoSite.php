@@ -43,13 +43,19 @@
             
             $fp = fopen(ROOT_FOLDER_LOCATION.INDEX_FILE, 'w');
             
+            $keyMap = array();
             $regionList = $this->getRegionList();
+            
             foreach ($regionList as $region)
             {
                 fwrite($fp, $region->getName().LINE_BREAK);
-                $region->syncData();
+                $region->syncData($keyMap);
             }
             
+            fclose($fp);
+            
+            $fp = fopen(ROOT_FOLDER_LOCATION.MAPPING_FILE, 'w');
+            fwrite($fp, serialize($keyMap));
             fclose($fp);
         }
         
