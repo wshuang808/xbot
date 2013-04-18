@@ -40,13 +40,14 @@
         public function syncData(&$keyMap)
         {
             $nameHash = getHash($this->name);
-            $dir = ROOT_FOLDER_LOCATION.PATH_DIVIDER.$nameHash;
-            $keyMap[$this->name] = $dir;
+            $dir = PATH_DIVIDER.$nameHash;
+            $localDir = ROOT_FOLDER_LOCATION.$dir;
+            $keyMap[$this->name] = $dir.INDEX_FILE;
             
-            if (!is_dir($dir))
-                mkdir($dir);
+            if (!is_dir($localDir))
+                mkdir($localDir);
             
-            $fp = fopen($dir.INDEX_FILE, 'w');
+            $fp = fopen($localDir.INDEX_FILE, 'w');
             
             $stationList = $this->getStationList();
             foreach ($stationList as $station)

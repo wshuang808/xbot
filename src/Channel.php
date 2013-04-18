@@ -41,7 +41,8 @@
             $nameHash = getHash($this->name);
             
             $fileLocation = $rootDir.PATH_DIVIDER.$nameHash.'.txt';
-            $fp = fopen($fileLocation, 'w');
+            $localFileLocation = ROOT_FOLDER_LOCATION.$fileLocation;
+            $fp = fopen($localFileLocation, 'w');
             $keyMap[$this->name] = $fileLocation;
             
             $programList = $this->getProgramList();
