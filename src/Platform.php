@@ -1,4 +1,4 @@
 <?php
-    define('LINE_BREAK', "\r\n");
-    define('PATH_DIVIDER', '\\');
+    define('LINE_BREAK', "\n");
+    define('PATH_DIVIDER', '/');
 ?>

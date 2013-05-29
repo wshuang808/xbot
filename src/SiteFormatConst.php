@@ -1,7 +1,7 @@
 <?php
-    define('ROOT_FOLDER_LOCATION', 'c:\\xbotRoot');
-    define('INDEX_FILE', '\\index.txt');
-    define('MAPPING_FILE', '\\mapping.txt');
+    define('ROOT_FOLDER_LOCATION', '/var/xbot');
+    define('INDEX_FILE', '/index');
+    define('MAPPING_FILE', '/mapping');
 
     // overall structure
     define('PROTOTYPE_CHANNEL', '<ul class="r" />');

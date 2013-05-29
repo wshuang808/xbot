@@ -6,13 +6,13 @@
         
         protected function setUp()
         {
-            $this->channel = new Channel('北京卫视', 'http://tvmao.com/program/BTV-BTV1-w1.html');
+            $this->channel = new Channel('湖北都市频道', 'http://tvmao.com/program/HUBEI-HUBEI6-w5.html');
         }
         
         public function testGetProgramList()
         {
             $programList = $this->channel->getProgramList();
-            $this->assertEquals(34, count($programList));
+            $this->assertEquals(9, count($programList));
         }
     }
 ?>

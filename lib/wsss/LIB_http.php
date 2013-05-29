@@ -277,6 +277,8 @@ function http($target, $ref, $method, $data_array, $incl_head)
                 $target = $target . "?" . $query_string;
             curl_setopt ($ch, CURLOPT_HTTPGET, TRUE); 
             curl_setopt ($ch, CURLOPT_POST, FALSE); 
+            curl_setopt ($ch, CURLOPT_FORBID_REUSE, TRUE);
+            curl_setopt ($ch, CURLOPT_FRESH_CONNECT, TRUE);
             }
         # POST method configuration
         if($method == POST)
@@ -285,6 +287,8 @@ function http($target, $ref, $method, $data_array, $incl_head)
                 curl_setopt ($ch, CURLOPT_POSTFIELDS, $query_string);
             curl_setopt ($ch, CURLOPT_POST, TRUE); 
             curl_setopt ($ch, CURLOPT_HTTPGET, FALSE); 
+            curl_setopt($ch, CURLOPT_FORBID_REUSE, 1);
+            curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
             }
     	curl_setopt($ch, CURLOPT_HEADER, $incl_head);   // Include head as needed
 	    curl_setopt($ch, CURLOPT_NOBODY, FALSE);        // Return body

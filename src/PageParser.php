@@ -15,8 +15,9 @@
         public static function getNodeByProto($url, $prototype)
         {
             $result = NULL;
-            $htmlContent = http_get($url, 'http://bot.google.com');
+            $htmlContent = http_get($url, '');
             $doc = self::getDocFromHTML($htmlContent['FILE']);;
+            sleep(8);            
 
             if (isset($doc))
             {

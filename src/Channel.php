@@ -40,7 +40,7 @@
         {
             $nameHash = getHash($this->name);
             
-            $fileLocation = $rootDir.PATH_DIVIDER.$nameHash.'.txt';
+            $fileLocation = $rootDir.PATH_DIVIDER.$nameHash;
             $localFileLocation = ROOT_FOLDER_LOCATION.$fileLocation;
             $fp = fopen($localFileLocation, 'w');
             $keyMap[$this->name] = $fileLocation;
